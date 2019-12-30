@@ -1,0 +1,96 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+Included Files:
+lab0.c is the source file for the lab0 program executable.
+Makefile is the makefile to build the program, check the program, and build 
+the tarball.
+backtrace.png shows the segfault and the stack-trace after the segfault.
+breakpoint.png shows the breakpoint and the inspection of the NULL pointer.
+test.sh is the test script run by make check.
+README is this file, which gives information about the author and the files 
+of this project.
+
+Check Tests:
+Invalid Argument with no other arguments:
+	This test checks if the program can recognize an invalid argument has 
+been given.
+Invalid Argument with one dash:
+	This test checks if the program can recognize an invalid argument that 
+has one initial dash.
+Invalid Argument with two dashes:
+	This test checks if the program can recognize an invalid argument that 
+has two initial dashes.
+Invalid Argument following Correct Arguments:
+	This test checks if the program will check for invalid arguments 
+before executing valid arguments.
+Invalid Argument preceding Correct Arguments:
+	This test has the same purpose as the preceding test, but in the 
+opposite order.
+No input file to --input argument:
+	This test checks if there is an error when no value is given for the 
+--input argument.
+Nonexistent file to --input argument:
+	This test checks if there is an error when a nonexistent file is 
+given for the --input argument.
+Unreadable file to --input argument:
+	This test checks if there is an error when an unreadable file is given 
+for the --input argument.
+No output file to --output argument:
+	This test checks if there is an error when no value is given for the 
+--output argument.
+Nonexistent file to --output argument:
+	This test checks if the program creates and writes to a file if it 
+does not already exist.
+Unwritable file to --output argument:
+	This test checks if there is an error when an unwritable file is given 
+for the --output argument.
+Standard input to standard output:
+	This test checks if standard input is written to standard output 
+correctly.
+Standard input to output file:
+	This test checks if standard input is written to an output file 
+correctly.
+Input file to standard output:
+	This test checks if an input file is written to an output file 
+correctly.
+Input file to output file:
+	This test checks if an input file is written to an output file 
+correctly.
+Input files to output file:
+	This test checks if only the last input file is written to the output 
+file.
+Input file to output files:
+	This test checks if the input file is written to only the last output 
+file.
+Segfault:
+	This test checks if the program segfaults when the --segfault 
+argument is given.
+Segfault catch:
+	This test checks if the segfault is caught when both the --segfault 
+and --catch arguments are given.
+Segfault catch dump:
+	This test checks if the segfault is caught and then the core is dumped 
+when the --segfault, --catch, and --dump arguments are given.
+Segfault before I/O:
+	This test checks if the segfault prevents reading and writing files 
+if the --segfault flag is placed first.
+Segfault after I/O:
+	This test checks if the segfault prevents reading and writing files 
+if the --segfault flag is placed last.
+
+Notes:
+Any error not specified in the project specification cause the program to 
+have an exit value of -1.
+--dump has the same effect as --dump-core.
+A --input or --output with no file was considered as an invalid argument with 
+exit code 1.
+This program does not work with directories.
+This program copies the contents of the file linked to, not the contents of 
+the link itself.
+If a file is input with --input, the standard input is not read from.
+If a file is input with --output, the standard output is not written to.
+This program only checks if the last input file is readable.
+This program only checks if the last output file is writable.
+The shell script test.sh is required for make check to work.

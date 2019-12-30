@@ -1,0 +1,15 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+Serial Number: BBGW19010427
+MAC Number: 2CF7F106A17F
+
+Files:
+README - This file
+Makefile - Default target builds tar ball
+connected.png - Shows network connections of beaglebone
+build_run.png - shows successful compilation and running of copied program
+copy.png - Shows successful copy from my computer to the beaglebone
+git.png - Shows successful cloning of the git repository Calculator
+my_beaglebone.jpg - A picture of me with my setup beaglebone

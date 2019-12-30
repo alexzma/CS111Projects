@@ -1,0 +1,9 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+Notes:
+The program rejects commands that use non-numbers as inputs for file 
+descriptors.
+The program treats a word after a single dash as a concatenation of 
+single character options if not following --command.

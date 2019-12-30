@@ -1,0 +1,13 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+FILES:
+lab4b.c: Source file for program
+Makefile: Creates and cleans files using Make targets
+README: This file
+
+Notes:
+The button should be connected to MRAA pin 60, which is GPIO pin 51.
+The temperature sensor should be connected to MRAA pin 1, which is AIN0.
+There may be one additional input after stops or shutdowns.

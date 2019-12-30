@@ -1,0 +1,533 @@
+Total: 600 samples
+     505  84.2%  84.2%      600 100.0% thread_method
+      71  11.8%  96.0%       71  11.8% __strcmp_sse42
+      13   2.2%  98.2%       49   8.2% SortedList_lookup
+      10   1.7%  99.8%       45   7.5% SortedList_insert
+       1   0.2% 100.0%        1   0.2% 0x00007fff525c37a8
+       0   0.0% 100.0%        1   0.2% __GI___clock_gettime
+       0   0.0% 100.0%      600 100.0% __clone
+       0   0.0% 100.0%      600 100.0% start_thread
+ROUTINE ====================== thread_method in /u/cs/ugrad/alexandm/111project3b/lab2_list.c
+   505    600 Total samples (flat / cumulative)
+     .      .   38: 	SortedListElement_t* elements;
+     .      .   39: 	int iterations;
+     .      .   40: 	int thread_num;
+     .      .   41: };
+     .      .   42: 
+---
+     .      .   43: void* thread_method(void* pointer){
+     .      .   44: 	struct thread_input input = *(struct thread_input*)(pointer);
+     .      .   45: 	SortedList_t* list = input.list;
+     .      .   46: 	SortedListElement_t* elements = input.elements;
+     .      .   47: 	int iterations = input.iterations;
+     .      .   48: 	int thread_num = input.thread_num;
+     .      .   49: 	int i = 0;
+     .      .   50: 	for(i = 0; i < iterations; i++){
+     .      .   51: 		if(lockVal == 'm'){
+     .      .   52: 			struct timespec init_time;
+     .      .   53: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .   54: 			if(output == -1){
+     .      .   55: 				char buf[] = "Clock error\n";
+     .      .   56: 				write(2, buf, strlen(buf));
+     .      .   57: 				_exit(2);
+     .      .   58: 			}
+     .      .   59: 			pthread_mutex_lock(&plock[elements[i].key[0]%numLists]);
+     .      .   60: 			struct timespec fin_time;
+     .      .   61: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .   62: 			if(output == -1){
+     .      .   63: 				char buf[] = "Clock error\n";
+     .      .   64: 				write(2, buf, strlen(buf));
+     .      .   65: 				_exit(2);
+     .      .   66: 			}
+     .      .   67: 			numLocks++;
+     .      .   68: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .   69: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   70: 			pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .   71: 		}
+     .      .   72: 		if(lockVal == 's'){
+     .      .   73: 			struct timespec init_time;
+     .      .   74: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .   75: 			if(output == -1){
+     .      .   76: 				char buf[] = "Clock error\n";
+     .      .   77: 				write(2, buf, strlen(buf));
+     .      .   78: 				_exit(2);
+     .      .   79: 			}
+   286    286   80: 			while(__sync_lock_test_and_set(&syncLock[elements[i].key[0]%numLists], 1)){continue;}
+     .      .   81: 			struct timespec fin_time;
+     .      1   82: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .   83: 			if(output == -1){
+     .      .   84: 				char buf[] = "Clock error\n";
+     .      .   85: 				write(2, buf, strlen(buf));
+     .      .   86: 				_exit(2);
+     .      .   87: 			}
+     .      .   88: 			numLocks++;
+     .      .   89: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .     45   90: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   91: 			__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .   92: 		}
+     .      .   93: 		if(lockVal == '\0'){
+     .      .   94: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   95: 		}
+     .      .   96: 	}
+     .      .   97: 	int length;
+     .      .   98: 	if(lockVal == 'm'){
+     .      .   99: 		unsigned long long i = 0;
+     .      .  100: 		for(i = 0; i < numLists; i++){
+     .      .  101: 			struct timespec init_time;
+     .      .  102: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  103: 			if(output == -1){
+     .      .  104: 				char buf[] = "Clock error\n";
+     .      .  105: 				write(2, buf, strlen(buf));
+     .      .  106: 				_exit(2);
+     .      .  107: 			}
+     .      .  108: 			pthread_mutex_lock(&plock[i]);
+     .      .  109: 			struct timespec fin_time;
+     .      .  110: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  111: 			if(output == -1){
+     .      .  112: 				char buf[] = "Clock error\n";
+     .      .  113: 				write(2, buf, strlen(buf));
+     .      .  114: 				_exit(2);
+     .      .  115: 			}
+     .      .  116: 			numLocks++;
+     .      .  117: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  118: 			length = SortedList_length(&list[i]);
+     .      .  119: 			if(length == -1){
+     .      .  120: 				char buf[] = "Corrupted list1\n";
+     .      .  121: 				write(2, buf, strlen(buf));
+     .      .  122: 				_exit(2);
+     .      .  123: 			}
+     .      .  124: 			pthread_mutex_unlock(&plock[i]);
+     .      .  125: 		}
+     .      .  126: 	}
+     .      .  127: 	if(lockVal == 's'){
+     .      .  128: 		unsigned long long i = 0;
+     .      .  129: 		for(i = 0; i < numLists; i++){
+     .      .  130: 			struct timespec init_time;
+     .      .  131: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  132: 			if(output == -1){
+     .      .  133: 				char buf[] = "Clock error\n";
+     .      .  134: 				write(2, buf, strlen(buf));
+     .      .  135: 				_exit(2);
+     .      .  136: 			}
+     .      .  137: 			while(__sync_lock_test_and_set(&syncLock[i], 1)){continue;}
+     .      .  138: 			struct timespec fin_time;
+     .      .  139: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  140: 			if(output == -1){
+     .      .  141: 				char buf[] = "Clock error\n";
+     .      .  142: 				write(2, buf, strlen(buf));
+     .      .  143: 				_exit(2);
+     .      .  144: 			}
+     .      .  145: 			numLocks++;
+     .      .  146: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  147: 			length = SortedList_length(&list[i]);
+     .      .  148: 			if(length == -1){
+     .      .  149: 				char buf[] = "Corrupted list1\n";
+     .      .  150: 				write(2, buf, strlen(buf));
+     .      .  151: 				_exit(2);
+     .      .  152: 			}
+     .      .  153: 			__sync_lock_release(&syncLock[i]);
+     .      .  154: 		}
+     .      .  155: 	}
+     .      .  156: 	if(lockVal == '\0'){
+     .      .  157: 		unsigned long long i = 0;
+     .      .  158: 		for(i = 0; i < numLists; i++){
+     .      .  159: 			length = SortedList_length(&list[i]);
+     .      .  160: 			if(length == -1){
+     .      .  161: 				char buf[] = "Corrupted list1\n";
+     .      .  162: 				write(2, buf, strlen(buf));
+     .      .  163: 				_exit(2);
+     .      .  164: 			}
+     .      .  165: 		}
+     .      .  166: 	}
+     .      .  167: 	for(i = 0; i < iterations; i++){
+     .      .  168: 		SortedListElement_t* lookup;
+     .      .  169: 		while(i != -1){
+     .      .  170: 			if(lockVal == 'm'){
+     .      .  171: 				struct timespec init_time;
+     .      .  172: 				int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  173: 				if(output == -1){
+     .      .  174: 					char buf[] = "Clock error\n";
+     .      .  175: 					write(2, buf, strlen(buf));
+     .      .  176: 					_exit(2);
+     .      .  177: 				}
+     .      .  178: 				pthread_mutex_lock(&plock[elements[i].key[0]%numLists]);
+     .      .  179: 				struct timespec fin_time;
+     .      .  180: 				output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  181: 				if(output == -1){
+     .      .  182: 					char buf[] = "Clock error\n";
+     .      .  183: 					write(2, buf, strlen(buf));
+     .      .  184: 					_exit(2);
+     .      .  185: 				}
+     .      .  186: 				numLocks++;
+     .      .  187: 				lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  188: 			}
+     .      .  189: 			if(lockVal == 's'){
+     .      .  190: 				struct timespec init_time;
+     .      .  191: 				int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  192: 				if(output == -1){
+     .      .  193: 					char buf[] = "Clock error\n";
+     .      .  194: 					write(2, buf, strlen(buf));
+     .      .  195: 					_exit(2);
+     .      .  196: 				}
+   130    130  197: 				while(__sync_lock_test_and_set(&syncLock[elements[i].key[0]%numLists], 1)){continue;}
+     .      .  198: 				struct timespec fin_time;
+     .      .  199: 				output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  200: 				if(output == -1){
+     .      .  201: 					char buf[] = "Clock error\n";
+     .      .  202: 					write(2, buf, strlen(buf));
+     .      .  203: 					_exit(2);
+     .      .  204: 				}
+     1      1  205: 				numLocks++;
+     .      .  206: 				lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  207: 			}
+     .     49  208: 			lookup = SortedList_lookup(list+elements[i].key[0]%numLists, elements[i].key);
+     .      .  209: 			if(lookup == NULL){
+     .      .  210: 				char buf[] = "Corrupted list3\n";
+     .      .  211: 				write(2, buf, strlen(buf));
+     .      .  212: 				_exit(2);
+     .      .  213: 			}
+     .      .  214: 			unsigned long long j = 0;
+     .      .  215: 			for(j = 0; j < numThreads; j++){
+     .      .  216: 				if(takenElements[j] == lookup){
+     .      .  217: 					break;
+     .      .  218: 				}
+     .      .  219: 			}
+     .      .  220: 			if(j == numThreads){
+     .      .  221: 				takenElements[thread_num] = lookup;
+     .      .  222: 				if(lockVal == 'm'){
+     .      .  223: 					pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .  224: 				}
+     .      .  225: 				if(lockVal == 's'){
+     .      .  226: 					__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .  227: 				}
+     .      .  228: 				break;
+     .      .  229: 			}
+     .      .  230: 			if(lockVal == 'm'){
+     .      .  231: 				pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .  232: 			}
+     .      .  233: 			if(lockVal == 's'){
+     .      .  234: 				__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .  235: 			}
+     .      .  236: 		}
+     .      .  237: 		int status;
+     .      .  238: 		if(lockVal == 'm'){
+     .      .  239: 			struct timespec init_time;
+     .      .  240: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  241: 			if(output == -1){
+     .      .  242: 				char buf[] = "Clock error\n";
+     .      .  243: 				write(2, buf, strlen(buf));
+     .      .  244: 				_exit(2);
+     .      .  245: 			}
+     .      .  246: 			pthread_mutex_lock(&plock[lookup->key[0]%numLists]);
+     .      .  247: 			struct timespec fin_time;
+     .      .  248: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  249: 			if(output == -1){
+     .      .  250: 				char buf[] = "Clock error\n";
+     .      .  251: 				write(2, buf, strlen(buf));
+     .      .  252: 				_exit(2);
+     .      .  253: 			}
+     .      .  254: 			numLocks++;
+     .      .  255: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  256: 			status = SortedList_delete(lookup);
+     .      .  257: 			pthread_mutex_unlock(&plock[lookup->key[0]%numLists]);
+     .      .  258: 		}
+     .      .  259: 		if(lockVal == 's'){
+     .      .  260: 			struct timespec init_time;
+     .      .  261: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  262: 			if(output == -1){
+     .      .  263: 				char buf[] = "Clock error\n";
+     .      .  264: 				write(2, buf, strlen(buf));
+     .      .  265: 				_exit(2);
+     .      .  266: 			}
+    88     88  267: 			while(__sync_lock_test_and_set(&syncLock[lookup->key[0]%numLists], 1)){continue;}
+     .      .  268: 			struct timespec fin_time;
+     .      .  269: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  270: 			if(output == -1){
+     .      .  271: 				char buf[] = "Clock error\n";
+     .      .  272: 				write(2, buf, strlen(buf));
+     .      .  273: 				_exit(2);
+     .      .  274: 			}
+     .      .  275: 			numLocks++;
+     .      .  276: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  277: 			status = SortedList_delete(lookup);
+     .      .  278: 			__sync_lock_release(&syncLock[lookup->key[0]%numLists]);
+     .      .  279: 		}
+     .      .  280: 		if(lockVal == '\0'){
+     .      .  281: 			status = SortedList_delete(lookup);
+     .      .  282: 		}
+     .      .  283: 		if(status == 1){
+     .      .  284: 			char buf[] = "Corrupted list2\n";
+     .      .  285: 			write(2, buf, strlen(buf));
+     .      .  286: 			_exit(2);
+     .      .  287: 		}
+     .      .  288: 	}
+     .      .  289: 	return NULL;
+     .      .  290: }
+---
+     .      .  291: 
+     .      .  292: int main(int argc, char* const argv[]){
+     .      .  293: 	opterr = 0;
+     .      .  294: 	struct option options[6];
+     .      .  295: 	options[0].name = "threads";
+ROUTINE ====================== thread_method in /u/cs/ugrad/alexandm/111project3b/lab2_list.c
+   505    600 Total samples (flat / cumulative)
+     .      .   38: 	SortedListElement_t* elements;
+     .      .   39: 	int iterations;
+     .      .   40: 	int thread_num;
+     .      .   41: };
+     .      .   42: 
+---
+     .      .   43: void* thread_method(void* pointer){
+     .      .   44: 	struct thread_input input = *(struct thread_input*)(pointer);
+     .      .   45: 	SortedList_t* list = input.list;
+     .      .   46: 	SortedListElement_t* elements = input.elements;
+     .      .   47: 	int iterations = input.iterations;
+     .      .   48: 	int thread_num = input.thread_num;
+     .      .   49: 	int i = 0;
+     .      .   50: 	for(i = 0; i < iterations; i++){
+     .      .   51: 		if(lockVal == 'm'){
+     .      .   52: 			struct timespec init_time;
+     .      .   53: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .   54: 			if(output == -1){
+     .      .   55: 				char buf[] = "Clock error\n";
+     .      .   56: 				write(2, buf, strlen(buf));
+     .      .   57: 				_exit(2);
+     .      .   58: 			}
+     .      .   59: 			pthread_mutex_lock(&plock[elements[i].key[0]%numLists]);
+     .      .   60: 			struct timespec fin_time;
+     .      .   61: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .   62: 			if(output == -1){
+     .      .   63: 				char buf[] = "Clock error\n";
+     .      .   64: 				write(2, buf, strlen(buf));
+     .      .   65: 				_exit(2);
+     .      .   66: 			}
+     .      .   67: 			numLocks++;
+     .      .   68: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .   69: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   70: 			pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .   71: 		}
+     .      .   72: 		if(lockVal == 's'){
+     .      .   73: 			struct timespec init_time;
+     .      .   74: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .   75: 			if(output == -1){
+     .      .   76: 				char buf[] = "Clock error\n";
+     .      .   77: 				write(2, buf, strlen(buf));
+     .      .   78: 				_exit(2);
+     .      .   79: 			}
+   286    286   80: 			while(__sync_lock_test_and_set(&syncLock[elements[i].key[0]%numLists], 1)){continue;}
+     .      .   81: 			struct timespec fin_time;
+     .      1   82: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .   83: 			if(output == -1){
+     .      .   84: 				char buf[] = "Clock error\n";
+     .      .   85: 				write(2, buf, strlen(buf));
+     .      .   86: 				_exit(2);
+     .      .   87: 			}
+     .      .   88: 			numLocks++;
+     .      .   89: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .     45   90: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   91: 			__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .   92: 		}
+     .      .   93: 		if(lockVal == '\0'){
+     .      .   94: 			SortedList_insert(list+elements[i].key[0]%numLists, &elements[i]);
+     .      .   95: 		}
+     .      .   96: 	}
+     .      .   97: 	int length;
+     .      .   98: 	if(lockVal == 'm'){
+     .      .   99: 		unsigned long long i = 0;
+     .      .  100: 		for(i = 0; i < numLists; i++){
+     .      .  101: 			struct timespec init_time;
+     .      .  102: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  103: 			if(output == -1){
+     .      .  104: 				char buf[] = "Clock error\n";
+     .      .  105: 				write(2, buf, strlen(buf));
+     .      .  106: 				_exit(2);
+     .      .  107: 			}
+     .      .  108: 			pthread_mutex_lock(&plock[i]);
+     .      .  109: 			struct timespec fin_time;
+     .      .  110: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  111: 			if(output == -1){
+     .      .  112: 				char buf[] = "Clock error\n";
+     .      .  113: 				write(2, buf, strlen(buf));
+     .      .  114: 				_exit(2);
+     .      .  115: 			}
+     .      .  116: 			numLocks++;
+     .      .  117: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  118: 			length = SortedList_length(&list[i]);
+     .      .  119: 			if(length == -1){
+     .      .  120: 				char buf[] = "Corrupted list1\n";
+     .      .  121: 				write(2, buf, strlen(buf));
+     .      .  122: 				_exit(2);
+     .      .  123: 			}
+     .      .  124: 			pthread_mutex_unlock(&plock[i]);
+     .      .  125: 		}
+     .      .  126: 	}
+     .      .  127: 	if(lockVal == 's'){
+     .      .  128: 		unsigned long long i = 0;
+     .      .  129: 		for(i = 0; i < numLists; i++){
+     .      .  130: 			struct timespec init_time;
+     .      .  131: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  132: 			if(output == -1){
+     .      .  133: 				char buf[] = "Clock error\n";
+     .      .  134: 				write(2, buf, strlen(buf));
+     .      .  135: 				_exit(2);
+     .      .  136: 			}
+     .      .  137: 			while(__sync_lock_test_and_set(&syncLock[i], 1)){continue;}
+     .      .  138: 			struct timespec fin_time;
+     .      .  139: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  140: 			if(output == -1){
+     .      .  141: 				char buf[] = "Clock error\n";
+     .      .  142: 				write(2, buf, strlen(buf));
+     .      .  143: 				_exit(2);
+     .      .  144: 			}
+     .      .  145: 			numLocks++;
+     .      .  146: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  147: 			length = SortedList_length(&list[i]);
+     .      .  148: 			if(length == -1){
+     .      .  149: 				char buf[] = "Corrupted list1\n";
+     .      .  150: 				write(2, buf, strlen(buf));
+     .      .  151: 				_exit(2);
+     .      .  152: 			}
+     .      .  153: 			__sync_lock_release(&syncLock[i]);
+     .      .  154: 		}
+     .      .  155: 	}
+     .      .  156: 	if(lockVal == '\0'){
+     .      .  157: 		unsigned long long i = 0;
+     .      .  158: 		for(i = 0; i < numLists; i++){
+     .      .  159: 			length = SortedList_length(&list[i]);
+     .      .  160: 			if(length == -1){
+     .      .  161: 				char buf[] = "Corrupted list1\n";
+     .      .  162: 				write(2, buf, strlen(buf));
+     .      .  163: 				_exit(2);
+     .      .  164: 			}
+     .      .  165: 		}
+     .      .  166: 	}
+     .      .  167: 	for(i = 0; i < iterations; i++){
+     .      .  168: 		SortedListElement_t* lookup;
+     .      .  169: 		while(i != -1){
+     .      .  170: 			if(lockVal == 'm'){
+     .      .  171: 				struct timespec init_time;
+     .      .  172: 				int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  173: 				if(output == -1){
+     .      .  174: 					char buf[] = "Clock error\n";
+     .      .  175: 					write(2, buf, strlen(buf));
+     .      .  176: 					_exit(2);
+     .      .  177: 				}
+     .      .  178: 				pthread_mutex_lock(&plock[elements[i].key[0]%numLists]);
+     .      .  179: 				struct timespec fin_time;
+     .      .  180: 				output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  181: 				if(output == -1){
+     .      .  182: 					char buf[] = "Clock error\n";
+     .      .  183: 					write(2, buf, strlen(buf));
+     .      .  184: 					_exit(2);
+     .      .  185: 				}
+     .      .  186: 				numLocks++;
+     .      .  187: 				lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  188: 			}
+     .      .  189: 			if(lockVal == 's'){
+     .      .  190: 				struct timespec init_time;
+     .      .  191: 				int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  192: 				if(output == -1){
+     .      .  193: 					char buf[] = "Clock error\n";
+     .      .  194: 					write(2, buf, strlen(buf));
+     .      .  195: 					_exit(2);
+     .      .  196: 				}
+   130    130  197: 				while(__sync_lock_test_and_set(&syncLock[elements[i].key[0]%numLists], 1)){continue;}
+     .      .  198: 				struct timespec fin_time;
+     .      .  199: 				output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  200: 				if(output == -1){
+     .      .  201: 					char buf[] = "Clock error\n";
+     .      .  202: 					write(2, buf, strlen(buf));
+     .      .  203: 					_exit(2);
+     .      .  204: 				}
+     1      1  205: 				numLocks++;
+     .      .  206: 				lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  207: 			}
+     .     49  208: 			lookup = SortedList_lookup(list+elements[i].key[0]%numLists, elements[i].key);
+     .      .  209: 			if(lookup == NULL){
+     .      .  210: 				char buf[] = "Corrupted list3\n";
+     .      .  211: 				write(2, buf, strlen(buf));
+     .      .  212: 				_exit(2);
+     .      .  213: 			}
+     .      .  214: 			unsigned long long j = 0;
+     .      .  215: 			for(j = 0; j < numThreads; j++){
+     .      .  216: 				if(takenElements[j] == lookup){
+     .      .  217: 					break;
+     .      .  218: 				}
+     .      .  219: 			}
+     .      .  220: 			if(j == numThreads){
+     .      .  221: 				takenElements[thread_num] = lookup;
+     .      .  222: 				if(lockVal == 'm'){
+     .      .  223: 					pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .  224: 				}
+     .      .  225: 				if(lockVal == 's'){
+     .      .  226: 					__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .  227: 				}
+     .      .  228: 				break;
+     .      .  229: 			}
+     .      .  230: 			if(lockVal == 'm'){
+     .      .  231: 				pthread_mutex_unlock(&plock[elements[i].key[0]%numLists]);
+     .      .  232: 			}
+     .      .  233: 			if(lockVal == 's'){
+     .      .  234: 				__sync_lock_release(&syncLock[elements[i].key[0]%numLists]);
+     .      .  235: 			}
+     .      .  236: 		}
+     .      .  237: 		int status;
+     .      .  238: 		if(lockVal == 'm'){
+     .      .  239: 			struct timespec init_time;
+     .      .  240: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  241: 			if(output == -1){
+     .      .  242: 				char buf[] = "Clock error\n";
+     .      .  243: 				write(2, buf, strlen(buf));
+     .      .  244: 				_exit(2);
+     .      .  245: 			}
+     .      .  246: 			pthread_mutex_lock(&plock[lookup->key[0]%numLists]);
+     .      .  247: 			struct timespec fin_time;
+     .      .  248: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  249: 			if(output == -1){
+     .      .  250: 				char buf[] = "Clock error\n";
+     .      .  251: 				write(2, buf, strlen(buf));
+     .      .  252: 				_exit(2);
+     .      .  253: 			}
+     .      .  254: 			numLocks++;
+     .      .  255: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  256: 			status = SortedList_delete(lookup);
+     .      .  257: 			pthread_mutex_unlock(&plock[lookup->key[0]%numLists]);
+     .      .  258: 		}
+     .      .  259: 		if(lockVal == 's'){
+     .      .  260: 			struct timespec init_time;
+     .      .  261: 			int output = clock_gettime(CLOCK_MONOTONIC, &init_time);
+     .      .  262: 			if(output == -1){
+     .      .  263: 				char buf[] = "Clock error\n";
+     .      .  264: 				write(2, buf, strlen(buf));
+     .      .  265: 				_exit(2);
+     .      .  266: 			}
+    88     88  267: 			while(__sync_lock_test_and_set(&syncLock[lookup->key[0]%numLists], 1)){continue;}
+     .      .  268: 			struct timespec fin_time;
+     .      .  269: 			output = clock_gettime(CLOCK_MONOTONIC, &fin_time);
+     .      .  270: 			if(output == -1){
+     .      .  271: 				char buf[] = "Clock error\n";
+     .      .  272: 				write(2, buf, strlen(buf));
+     .      .  273: 				_exit(2);
+     .      .  274: 			}
+     .      .  275: 			numLocks++;
+     .      .  276: 			lockTime += fin_time.tv_sec*1000000000 + fin_time.tv_nsec - init_time.tv_sec*1000000000 - init_time.tv_nsec;
+     .      .  277: 			status = SortedList_delete(lookup);
+     .      .  278: 			__sync_lock_release(&syncLock[lookup->key[0]%numLists]);
+     .      .  279: 		}
+     .      .  280: 		if(lockVal == '\0'){
+     .      .  281: 			status = SortedList_delete(lookup);
+     .      .  282: 		}
+     .      .  283: 		if(status == 1){
+     .      .  284: 			char buf[] = "Corrupted list2\n";
+     .      .  285: 			write(2, buf, strlen(buf));
+     .      .  286: 			_exit(2);
+     .      .  287: 		}
+     .      .  288: 	}
+     .      .  289: 	return NULL;
+     .      .  290: }
+---
+     .      .  291: 
+     .      .  292: int main(int argc, char* const argv[]){
+     .      .  293: 	opterr = 0;
+     .      .  294: 	struct option options[6];
+     .      .  295: 	options[0].name = "threads";

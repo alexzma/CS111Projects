@@ -1,0 +1,26 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+Files:
+README: This file
+Makefile: Makes and deletes programs using source files and make targets
+lab3b.c: Source file for program
+lab3b.out: Generated executable from using gcc on lab3b.c
+lab3b: Generated shell script from Makefile
+
+Notes:
+I chose to implement this code using a combination of C and shell scripting.
+The shell script preprocesses the lines of the csv, so they are easier to 
+parse in the c program.
+Then, in the C program, I can iterate through the preprocessed lines.
+C is a faster language than certain other languages such as Python and 
+C++, so it should finish within the time limit, unless the program 
+does not work correctly.
+Keeping track of memory allocation was not too much of an issue, because 
+most of the memory allocation was either used throughout the whole program 
+or only allocated within an iteration of a loop.
+The lab3b shell script creates a temporary file named using $RAND. If all 
+possible values of $RAND are names of files, the lab3 executable will have an 
+infinite loop.
+The clean target will attempt to remove any files that consist of purely numbers.

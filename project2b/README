@@ -1,0 +1,87 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+Description of Files:
+README: This file
+
+Makefile: Creates the files using the targets and the make command
+
+SortedList.h: Contains template for sorted list methods
+
+SortedList.c: Contains implementations of methods in SortedList.h
+
+lab2_list.c: Contains code to manipulate lists.
+
+test.sh: Runs test script for tests target
+
+profiles.sh: Runs script to make profile.out
+
+profile.out: Output of profiling the spin-lock implementation
+
+*.png: Graphs
+
+lab2_list.gp: Creates the graphs
+--------------------------------------------------------------------------------
+
+2.3.1
+Most of the CPU time is spend in the 1 and 2-thread list tests, because the 
+processes in those threads occur most sequentially. Those processes 
+underutilize the CPU's potential, so they are slower than the processes with 
+more threads.
+I belive the most expensive parts of the code are the time waiting for the 
+locks and the iteration through the linked list. If there is high contention, 
+the time waiting for the locks will be higher, because there is a longer time 
+before the lock is released. If there is low contention, the iteration through 
+the linked list iteration time will be higher than the locks, because the list 
+is so large.
+I believe most of the CPU time in the high-thread spin-lock tests is being spent 
+waiting for the spin-lock to open. The threads occupy great amounts of CPU 
+while spinning, which makes the thread running the critical section slower, 
+which makes the spinning threads wait longer for the lock to open.
+I believe most of the CPU time in the high-thread mutex tests is being spent 
+iterating through the list. The threads waiting for the mutex do not occupy 
+CPU resources, so the CPU can more fully dedicate its resources to the thread 
+that is executing the critical section. The majority of the critical section 
+time is spent iterating through the linked list.
+
+2.3.2
+The operation that consumes most of the CPU time when the spin-lock version 
+is run with a large number of threads is the locking operation of the 
+spin lock. This happens at lines 80, 197, and 267.
+This operation becomes so expensive with large numbers of threads, because 
+only one thread can have the lock, and with high contention, this creates a 
+bottleneck in the program.
+
+2.3.3
+The average lock-wait time rises so sharply with the number of contending 
+threads, because the percent increase in the number of contending threads 
+is high initially. From 1 to 2 threads, the percent increase is 100%. From 2 
+to 4 threads, the percent increase is once again 100%. Therefore, the time 
+that the locks also rises at a high percent increase.
+The completion time per operation rises less sharply than the lock-wait time, 
+because one lock is executing the critical section while the other threads are 
+waiting. This decreases the completion time per operation relative to the 
+lock-wait time.
+The wait time per operation can go up faster than the completion time per 
+operation, because one thread is executing the critical section while the 
+other threads are waiting. Therefore, the average wait time increases faster 
+than the average operation time.
+
+2.3.4
+The performance of the synchronized methods increases approximately 
+proportionally to the number of lists. If the performance (in operations per 
+second) were the variable y, and the number of lists was the variable x, then 
+the function of performance to the number of lists is approximately y=mx, 
+where m is a constant.
+The throughput should continue increasing as the number of lists is further 
+increased up to a point. The throughput should stop increasing when the number 
+of lists is so high that most elements are in their own list, at which point 
+there would never be lock conflicts, and any further increase in list number 
+would be pointless.
+An N-way partitioned list does not appear to be equivalent to the throughput 
+of a single list with fewer (1/N) threads. This is due to the greater number 
+of lists distributing the elements between each other. This distribution 
+decreases the lengths of the lists, so the SortedList methods have to 
+iterate over fewer elements to obtain the result. This makes the gain in 
+performance higher than simply the decrease in lock conflicts.

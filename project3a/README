@@ -1,0 +1,20 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+PART 1: Exploring an EXT2 Image
+I mounted the file system image using a Ubuntu virtual machine using the command:
+sudo mount -o ro,loop EXT2_test.img fs
+There was a lost+found directory, which I could not access, since I opened it as read only.
+I looked through the other directories, then unmounted the file system image.
+I also ran Debugfs. The stats command shows the superblock information. The stat command shows the information about 1 file. The bd command dumps a block's information. The testi command says whether a file's inode is marked as in use. The testb command says whether a block is marked as in use.
+
+Files:
+README: This file
+Makefile: File that makes the program and executable with make targets
+ext2_fs.h: Header file that contains some definitions for lab3a.c
+lab3a.c: File that analyzes ext2 formatted file system images
+
+Notes:
+This program only works on ext2 formatted file system images with one group.
+If there is an indirect reference to a directory entry, the INDIRECT line prints before the DIRENT line(s).

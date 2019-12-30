@@ -1,0 +1,12 @@
+NAME: Alexander Ma
+EMAIL: alexanderzma@hotmail.com
+ID: 105093055
+
+FILES:
+README: This file
+Makefile: Makes files using Make targets
+lab4c.c: Source file for lab4c_tcp and lab4c_tls
+
+Notes:
+The names of lab4c_tcp and lab4c_tls are used to determine which protocol to use.
+If different names are given, the programs will not work.
